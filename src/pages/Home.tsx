@@ -491,12 +491,61 @@ const Home = () => {
               transition={{ duration: 0.6 }}
               className="max-w-[600px] lg:max-w-none relative z-20"
             >
-              {/* Redeem Banner */}
-              <div className="mb-4">
-                <span className="text-white font-semibold text-sm uppercase tracking-wide px-3 py-1 bg-red-600/80 rounded-md inline-block" style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>
-                  REDEEM FREE 1GB FOR YOUR NEXT TRIP
-                </span>
-              </div>
+              {/* Redeem Banner Button */}
+              <motion.div 
+                className="mb-4"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <motion.button
+                  whileHover={{ scale: 1.05, boxShadow: '0 8px 16px rgba(204, 0, 0, 0.3)' }}
+                  whileTap={{ scale: 0.95 }}
+                  className="relative overflow-hidden group"
+                  onClick={() => {
+                    // Handle redeem action - can navigate to a page or show modal
+                    alert('Redeem 1GB - Feature coming soon!')
+                  }}
+                  style={{
+                    background: 'linear-gradient(135deg, #cc0000 0%, #ff3333 100%)',
+                    boxShadow: '0 4px 12px rgba(204, 0, 0, 0.25)',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  <span className="relative z-10 text-white font-bold text-sm uppercase tracking-wide px-6 py-3 rounded-lg inline-flex items-center gap-2">
+                    <svg 
+                      className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                    </svg>
+                    Redeem 1GB for your next trip
+                    <svg 
+                      className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                  {/* Animated background shimmer effect */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                    animate={{
+                      x: ['-100%', '100%'],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatDelay: 3,
+                      ease: 'easeInOut'
+                    }}
+                  />
+                </motion.button>
+              </motion.div>
               
               {/* Main Headline */}
               <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] xl:text-6xl font-bold text-gray-900 mb-6 leading-[1.2]" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
