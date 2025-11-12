@@ -1,7 +1,6 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { allCountries, getTopDestinations, getNewDestinations, searchCountries, Country } from '@/utils/countriesData'
 import { regionalPlans } from '@/utils/regionalPlansData'
 
 const ShopPlans = () => {
@@ -21,50 +20,6 @@ const ShopPlans = () => {
   }, [searchParams])
 
   const regions = ['All', 'Asia', 'Europe', 'North America', 'South America', 'Africa', 'Oceania', 'Middle East']
-
-  // Filter countries based on destination type (for Global eSIM)
-  const filteredByType = useMemo(() => {
-    if (destinationType === 'Top') return getTopDestinations()
-    if (destinationType === 'New') return getNewDestinations()
-    return allCountries
-  }, [destinationType])
-
-  // Filter by region (for Global eSIM)
-  const filteredByRegion = useMemo(() => {
-    if (selectedRegion === 'All') return filteredByType
-    return filteredByType.filter(country => country.region === selectedRegion)
-  }, [filteredByType, selectedRegion])
-
-  // Filter by search query (for Global eSIM)
-  const filteredCountries = useMemo(() => {
-    if (!searchQuery.trim()) return filteredByRegion
-    return searchCountries(searchQuery).filter(country => 
-      filteredByRegion.some(c => c.id === country.id)
-    )
-  }, [filteredByRegion, searchQuery])
-
-
-  const handleBuyNow = (country: Country, dataSize: '1GB' | '5GB' | '10GB' | 'Unlimited') => {
-    const plan = {
-      id: `${country.id}-${dataSize}`,
-      name: `${country.name} - ${dataSize}`,
-      description: `${dataSize} eSIM plan for ${country.name}`,
-      price: country.prices[dataSize],
-      currency: 'USD',
-      data: dataSize,
-      validity: dataSize === 'Unlimited' ? '30 days' : '30 days',
-      regions: [country.region],
-      features: [
-        `${dataSize} Data`,
-        '30 Days Validity',
-        `${country.region} Coverage`,
-        'High Speed',
-        '24/7 Support'
-      ],
-      popular: country.isTop || false,
-    }
-    navigate('/checkout', { state: { plan } })
-  }
 
   const handleRegionClick = (regionName: string) => {
     // Navigate to country selection page for this region
@@ -321,103 +276,85 @@ const ShopPlans = () => {
             </div>
           )}
 
-          {/* Global eSIM View (Existing Country Grid) */}
+          {/* Global eSIM View - Plan Cards */}
           {esimType === 'global' && (
-            <>
-              {/* Results Count */}
-              <div className="mb-6">
-                <p className="text-gray-600">
-                  {filteredCountries.length} {filteredCountries.length === 1 ? 'destination' : 'destinations'} found
-                </p>
-              </div>
-
-              {/* Countries Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {filteredCountries.map((country, index) => (
-                  <motion.div
-                    key={country.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.02 }}
-                    className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow overflow-hidden"
-                  >
-                    <div className="p-4">
-                      {/* Country Header */}
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-2xl flex-shrink-0">
-                          {country.flag}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-900 truncate">{country.name}</h3>
-                          <div className={`inline-block px-2 py-0.5 rounded text-xs font-medium mt-1 ${
-                            country.status === 'Open Now'
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-yellow-100 text-yellow-700'
-                          }`}>
-                            {country.status}
-                          </div>
-                        </div>
+            <div className="space-y-6">
+              {/* Global-EX 54 Countries Plan */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow overflow-hidden"
+              >
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-1">Global-EX</h3>
+                      <p className="text-sm text-gray-600 mb-3">Start from USD 2.17/GB</p>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">
+                          10GB - 50GB
+                        </span>
+                        <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">
+                          30DAY - 365DAY
+                        </span>
                       </div>
-
-                      {/* Pricing Options */}
-                      {country.status === 'Open Now' ? (
-                        <div className="space-y-2 mb-4">
-                          <button
-                            onClick={() => handleBuyNow(country, '1GB')}
-                            className="w-full flex items-center justify-between p-2.5 border border-gray-200 rounded-lg hover:border-telgo-red hover:bg-red-50 transition-colors group"
-                          >
-                            <span className="text-sm text-gray-700 group-hover:text-gray-900">1GB</span>
-                            <span className="font-semibold text-gray-900">${country.prices['1GB'].toFixed(2)}</span>
-                          </button>
-                          <button
-                            onClick={() => handleBuyNow(country, '5GB')}
-                            className="w-full flex items-center justify-between p-2.5 border border-gray-200 rounded-lg hover:border-telgo-red hover:bg-red-50 transition-colors group"
-                          >
-                            <span className="text-sm text-gray-700 group-hover:text-gray-900">5GB</span>
-                            <span className="font-semibold text-gray-900">${country.prices['5GB'].toFixed(2)}</span>
-                          </button>
-                          <button
-                            onClick={() => handleBuyNow(country, '10GB')}
-                            className="w-full flex items-center justify-between p-2.5 border border-gray-200 rounded-lg hover:border-telgo-red hover:bg-red-50 transition-colors group"
-                          >
-                            <span className="text-sm text-gray-700 group-hover:text-gray-900">10GB</span>
-                            <span className="font-semibold text-gray-900">${country.prices['10GB'].toFixed(2)}</span>
-                          </button>
-                          <button
-                            onClick={() => handleBuyNow(country, 'Unlimited')}
-                            className="w-full flex items-center justify-between p-2.5 border border-gray-200 rounded-lg hover:border-telgo-red hover:bg-red-50 transition-colors group"
-                          >
-                            <span className="text-sm text-gray-700 group-hover:text-gray-900">Unlimited</span>
-                            <span className="font-semibold text-gray-900">${country.prices['Unlimited'].toFixed(2)}</span>
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="mb-4 p-3 bg-gray-50 rounded-lg text-center">
-                          <p className="text-sm text-gray-500">Coming soon</p>
-                        </div>
-                      )}
-
-                      {/* Buy Button */}
-                      {country.status === 'Open Now' && (
-                        <button
-                          onClick={() => handleBuyNow(country, '5GB')}
-                          className="w-full py-2.5 bg-telgo-red text-white rounded-lg font-semibold hover:bg-red-700 transition-colors text-sm"
-                        >
-                          Buy
-                        </button>
-                      )}
+                      <p className="text-sm text-gray-600">Available in 54 / 82 Countries</p>
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* No Results */}
-              {filteredCountries.length === 0 && (
-                <div className="text-center py-12">
-                  <p className="text-gray-500 text-lg">No destinations found. Try a different search or filter.</p>
+                    <button
+                      onClick={() => navigate('/global-esim')}
+                      className="px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Shop Now
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => navigate('/global-esim')}
+                    className="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors"
+                  >
+                    View All →
+                  </button>
                 </div>
-              )}
-            </>
+              </motion.div>
+
+              {/* Global 106 Countries Plan */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow overflow-hidden"
+              >
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-1">Global</h3>
+                      <p className="text-sm text-gray-600 mb-3">Start from USD 7.20/GB</p>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">
+                          1GB - 5GB
+                        </span>
+                        <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">
+                          1DAY - 30DAY
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600">Available in 106 / 112 Countries</p>
+                    </div>
+                    <button
+                      onClick={() => navigate('/global-esim')}
+                      className="px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Shop Now
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => navigate('/global-esim')}
+                    className="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors"
+                  >
+                    View All →
+                  </button>
+                </div>
+              </motion.div>
+            </div>
           )}
 
           {/* Local eSIM View - Placeholder */}

@@ -11,6 +11,7 @@ import ShopPlans from './pages/ShopPlans'
 import Checkout from './pages/Checkout'
 import RegionCountries from './pages/RegionCountries'
 import CountryPackages from './pages/CountryPackages'
+import GlobalESIMPlans from './pages/GlobalESIMPlans'
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/shop" element={<ShopPlans />} />
           <Route path="/region/:regionName" element={<RegionCountries />} />
           <Route path="/country/:countryName" element={<CountryPackages />} />
+          <Route path="/global-esim" element={<GlobalESIMPlans />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />

@@ -868,42 +868,51 @@ const Home = () => {
 
             {/* Global eSIMs */}
             {activeTab === 'global' && (
-              <div className="relative">
-                <div
-                  ref={scrollContainerRef}
-                  className="flex gap-4 overflow-x-auto pb-4 scroll-smooth scrollbar-hide"
+              <div className="mb-6">
+                <button
+                  onClick={() => navigate('/global-esim')}
+                  className="w-full py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors text-lg mb-4"
                 >
-                  {allCountries.map((dest, index) => (
-                    <div
-                      key={index}
-                      className="flex-shrink-0 bg-white rounded-xl shadow-md p-6 text-center hover:shadow-xl transition-shadow cursor-pointer min-w-[200px]"
-                    >
-                      <div className="text-4xl mb-3">{dest.flag}</div>
-                      <div className="text-gray-900 font-semibold mb-2 text-sm">{dest.name}</div>
-                      <div className="text-telgo-red text-sm font-medium">
-                        Starting from USD {dest.price}/GB
+                  View Global eSIM Plans →
+                </button>
+                <div className="relative">
+                  <div
+                    ref={scrollContainerRef}
+                    className="flex gap-4 overflow-x-auto pb-4 scroll-smooth scrollbar-hide"
+                  >
+                    {allCountries.map((dest, index) => (
+                      <div
+                        key={index}
+                        onClick={() => navigate('/global-esim')}
+                        className="flex-shrink-0 bg-white rounded-xl shadow-md p-6 text-center hover:shadow-xl transition-shadow cursor-pointer min-w-[200px]"
+                      >
+                        <div className="text-4xl mb-3">{dest.flag}</div>
+                        <div className="text-gray-900 font-semibold mb-2 text-sm">{dest.name}</div>
+                        <div className="text-telgo-red text-sm font-medium">
+                          Starting from USD {dest.price}/GB
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => handleScroll('left', scrollContainerRef)}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors z-10"
+                    aria-label="Scroll left"
+                  >
+                    <svg className="w-6 h-6 text-telgo-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => handleScroll('right', scrollContainerRef)}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors z-10"
+                    aria-label="Scroll right"
+                  >
+                    <svg className="w-6 h-6 text-telgo-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
                 </div>
-                <button
-                  onClick={() => handleScroll('left', scrollContainerRef)}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors z-10"
-                  aria-label="Scroll left"
-                >
-                  <svg className="w-6 h-6 text-telgo-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => handleScroll('right', scrollContainerRef)}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors z-10"
-                  aria-label="Scroll right"
-                >
-                  <svg className="w-6 h-6 text-telgo-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
               </div>
             )}
           </motion.div>
