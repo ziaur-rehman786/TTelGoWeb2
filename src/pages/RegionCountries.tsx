@@ -22,16 +22,7 @@ const RegionCountries = () => {
     'Middle East': ['Middle East'],
   }
 
-  // Get all countries in this region from regional plans
-  const regionCountriesFromPlans = useMemo(() => {
-    const countriesSet = new Set<string>()
-    regionalPlans
-      .filter(plan => plan.continent === decodedRegionName)
-      .forEach(plan => {
-        plan.countries.forEach(country => countriesSet.add(country.name))
-      })
-    return Array.from(countriesSet)
-  }, [decodedRegionName])
+  // Note: regionCountriesFromPlans is used indirectly through the country matching logic below
 
   // Get full country data for countries in this region
   const countriesInRegion = useMemo(() => {
@@ -71,8 +62,6 @@ const RegionCountries = () => {
           matchedCountries.push(country)
         }
       })
-
-    const mappedRegions = regionMapping[decodedRegionName] || [decodedRegionName]
     return [...matchedCountries, ...unmatchedCountries.map(c => ({
       id: c.name.toLowerCase().replace(/\s+/g, '-'),
       name: c.name,
