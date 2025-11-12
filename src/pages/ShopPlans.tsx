@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { regionalPlans } from '@/utils/regionalPlansData'
+import { allCountries as countriesData } from '@/utils/countriesData'
 
 const ShopPlans = () => {
   const navigate = useNavigate()
@@ -26,6 +27,30 @@ const ShopPlans = () => {
     setEsimType(type)
     setSearchParams({ tab: type })
   }
+
+  // Local eSIMs - All 200+ countries
+  const localDestinations = useMemo(() => {
+    return countriesData
+      .filter(country => country.status === 'Open Now')
+      .map(country => ({
+        name: country.name,
+        flag: country.flag,
+        price: country.prices['1GB'].toFixed(2), // Price per GB from 1GB plan
+        country: country, // Keep full country object for navigation
+      }))
+  }, [])
+
+  // Filter local destinations by search query
+  const filteredLocalDestinations = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return localDestinations
+    }
+    const query = searchQuery.toLowerCase()
+    return localDestinations.filter(dest =>
+      dest.name.toLowerCase().includes(query) ||
+      dest.country.region?.toLowerCase().includes(query)
+    )
+  }, [localDestinations, searchQuery])
 
   return (
     <div className="w-full bg-white min-h-screen">
@@ -298,11 +323,41 @@ const ShopPlans = () => {
             </div>
           )}
 
-          {/* Local eSIM View - Placeholder */}
+          {/* Local eSIM View - All Countries */}
           {esimType === 'local' && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg mb-4">Local eSIM plans coming soon!</p>
-              <p className="text-gray-400">Check out our Regional and Global eSIM plans for now.</p>
+            <div className="space-y-6">
+              {/* Results Count */}
+              <div className="mb-4">
+                <p className="text-gray-600 text-sm">
+                  {filteredLocalDestinations.length} {filteredLocalDestinations.length === 1 ? 'country' : 'countries'} available
+                </p>
+              </div>
+
+              {/* Countries Grid */}
+              {filteredLocalDestinations.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-500 text-lg">No countries found. Try a different search.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 max-h-[600px] overflow-y-auto pr-2">
+                  {filteredLocalDestinations.map((dest, index) => (
+                    <motion.div
+                      key={dest.country.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: Math.min(index * 0.02, 0.5) }}
+                      onClick={() => navigate(`/country/${encodeURIComponent(dest.name)}`)}
+                      className="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+                    >
+                      <div className="text-4xl mb-2">{dest.flag}</div>
+                      <div className="text-gray-900 font-semibold mb-1 text-sm">{dest.name}</div>
+                      <div className="text-telgo-red text-xs font-medium">
+                        From ${dest.price}/GB
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

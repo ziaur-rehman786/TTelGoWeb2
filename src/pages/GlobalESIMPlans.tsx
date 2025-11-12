@@ -259,14 +259,6 @@ const GlobalESIMPlans = () => {
                   <p className="text-gray-600">Travel eSIM</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-green-600 font-semibold">Excellent</span>
-                  <div className="flex text-green-500">★★★★</div>
-                </div>
-                <span className="text-gray-600 text-sm">23,300 reviews on Trustpilot</span>
-                <div className="w-20 h-5 bg-green-100 rounded"></div>
-              </div>
               {/* Plan Group Selector */}
               <div className="mb-4">
                 <div className="flex gap-2">
