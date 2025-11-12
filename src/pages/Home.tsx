@@ -667,33 +667,24 @@ const Home = () => {
               </div>
             </motion.div>
 
-            {/* Right Hero Image */}
+            {/* Right Hero Background */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               className="hidden lg:flex relative w-full items-center justify-center"
-              style={{ zIndex: 15 }}
+              style={{ 
+                zIndex: 15,
+                backgroundImage: 'url(/IMAGES/HeroStyle.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                minHeight: '600px',
+                borderRadius: '0.5rem'
+              }}
             >
-              <div className="relative w-full flex items-center justify-center">
-                <img
-                  src="/IMAGES/FemaleTeam.jpg"
-                  alt="TTelGo Team"
-                  className="w-full h-auto object-cover rounded-lg"
-                  style={{ 
-                    display: 'block',
-                    maxHeight: '700px',
-                    width: '100%',
-                    height: 'auto'
-                  }}
-                  onLoad={() => {
-                    // Image loaded successfully
-                  }}
-                  onError={() => {
-                    console.error('Failed to load FemaleTeam.jpg');
-                  }}
-                />
-              </div>
+              {/* Decorative overlay if needed */}
+              <div className="absolute inset-0 bg-gradient-to-l from-transparent to-white/10 rounded-lg" />
             </motion.div>
           </div>
         </div>
