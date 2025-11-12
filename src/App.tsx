@@ -9,6 +9,8 @@ import Login from './pages/Login'
 import SignUp from './pages/SignUp'
 import ShopPlans from './pages/ShopPlans'
 import Checkout from './pages/Checkout'
+import RegionCountries from './pages/RegionCountries'
+import CountryPackages from './pages/CountryPackages'
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
           <Route path="/help" element={<HelpCentre />} />
           <Route path="/my-esim" element={<MyeSIM />} />
           <Route path="/shop" element={<ShopPlans />} />
+          <Route path="/region/:regionName" element={<RegionCountries />} />
+          <Route path="/country/:countryName" element={<CountryPackages />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />

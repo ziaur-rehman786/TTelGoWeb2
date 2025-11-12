@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { allCountries, getTopDestinations, getNewDestinations, searchCountries, Country } from '@/utils/countriesData'
-import { regionalPlans, getPlansByContinent, RegionalPlan } from '@/utils/regionalPlansData'
+import { regionalPlans } from '@/utils/regionalPlansData'
 
 const ShopPlans = () => {
   const navigate = useNavigate()
@@ -43,20 +43,6 @@ const ShopPlans = () => {
     )
   }, [filteredByRegion, searchQuery])
 
-  // Filter regional plans by search query
-  const filteredRegionalPlans = useMemo(() => {
-    if (!searchQuery.trim()) return regionalPlans
-    const lowerQuery = searchQuery.toLowerCase()
-    return regionalPlans.filter(plan => 
-      plan.name.toLowerCase().includes(lowerQuery) ||
-      plan.countries.some(country => country.name.toLowerCase().includes(lowerQuery))
-    )
-  }, [searchQuery])
-
-  // Group regional plans by continent
-  const regionalPlansByContinent = useMemo(() => {
-    return getPlansByContinent()
-  }, [])
 
   const handleBuyNow = (country: Country, dataSize: '1GB' | '5GB' | '10GB' | 'Unlimited') => {
     const plan = {
@@ -80,27 +66,9 @@ const ShopPlans = () => {
     navigate('/checkout', { state: { plan } })
   }
 
-  const handleRegionalPlanShop = (regionalPlan: RegionalPlan) => {
-    // Navigate to a detailed view or checkout with regional plan
-    const plan = {
-      id: regionalPlan.id,
-      name: `${regionalPlan.name} Regional eSIM`,
-      description: `Regional eSIM plan covering ${regionalPlan.countryCount} countries`,
-      price: regionalPlan.pricePerGB * 5, // Default to 5GB
-      currency: regionalPlan.currency,
-      data: '5GB',
-      validity: '30 days',
-      regions: [regionalPlan.continent],
-      features: [
-        `${regionalPlan.countryCount} Countries`,
-        '30 Days Validity',
-        `${regionalPlan.continent} Coverage`,
-        'High Speed',
-        '24/7 Support'
-      ],
-      popular: false,
-    }
-    navigate('/checkout', { state: { plan } })
+  const handleRegionClick = (regionName: string) => {
+    // Navigate to country selection page for this region
+    navigate(`/region/${encodeURIComponent(regionName)}`)
   }
 
   const handleEsimTypeChange = (type: 'local' | 'regional' | 'global') => {
@@ -261,87 +229,95 @@ const ShopPlans = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Regional eSIM View */}
           {esimType === 'regional' && (
-            <div className="space-y-12">
-              {Object.entries(regionalPlansByContinent).map(([continent, plans]) => {
-                if (plans.length === 0) return null
-                
-                const filteredPlans = searchQuery.trim()
-                  ? plans.filter(plan => 
-                      plan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      plan.countries.some(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
+            <div className="space-y-8">
+              {/* Get unique regions from regional plans */}
+              {(() => {
+                const uniqueRegions = Array.from(new Set(regionalPlans.map(plan => plan.continent)))
+                const filteredRegions = searchQuery.trim()
+                  ? uniqueRegions.filter(region => 
+                      region.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      regionalPlans.some(plan => 
+                        plan.continent === region && 
+                        plan.countries.some(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                      )
                     )
-                  : plans
+                  : uniqueRegions
 
-                if (filteredPlans.length === 0) return null
+                if (filteredRegions.length === 0) {
+                  return (
+                    <div className="text-center py-12">
+                      <p className="text-gray-500 text-lg">No regions found. Try a different search.</p>
+                    </div>
+                  )
+                }
 
                 return (
-                  <div key={continent}>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">{continent}</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {filteredPlans.map((plan, index) => (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredRegions.map((region, index) => {
+                      // Get all countries in this region from regional plans
+                      const regionCountries = new Set<string>()
+                      regionalPlans
+                        .filter(plan => plan.continent === region)
+                        .forEach(plan => {
+                          plan.countries.forEach(country => regionCountries.add(country.name))
+                        })
+                      
+                      const countryCount = regionCountries.size
+                      const sampleCountries = Array.from(regionCountries).slice(0, 6)
+
+                      return (
                         <motion.div
-                          key={plan.id}
+                          key={region}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3, delay: index * 0.1 }}
-                          className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow overflow-hidden"
+                          onClick={() => handleRegionClick(region)}
+                          className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-all cursor-pointer overflow-hidden"
                         >
                           <div className="p-6">
                             {/* Header */}
-                            <div className="flex items-start justify-between mb-4">
-                              <div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-1">{plan.name}</h3>
-                                <p className="text-sm text-gray-600">Start from {plan.currency} {plan.pricePerGB.toFixed(2)}/GB</p>
-                              </div>
-                              <button
-                                onClick={() => handleRegionalPlanShop(plan)}
-                                className="px-4 py-2 bg-telgo-red text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors"
-                              >
-                                Shop Now
-                              </button>
+                            <div className="mb-4">
+                              <h3 className="text-2xl font-bold text-gray-900 mb-2">{region}</h3>
+                              <p className="text-sm text-gray-600">
+                                {countryCount} {countryCount === 1 ? 'Country' : 'Countries'} Available
+                              </p>
                             </div>
 
-                            {/* Country Count */}
-                            <p className="text-sm text-gray-600 mb-4">
-                              Available in {plan.countryCount} {plan.countryCount === 1 ? 'Country' : 'Countries'}
-                            </p>
-
-                            {/* Country Flags */}
+                            {/* Sample Country Flags */}
                             <div className="flex flex-wrap gap-2 mb-4">
-                              {plan.countries.slice(0, 6).map((country, idx) => (
-                                <div key={idx} className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded text-sm">
-                                  <span className="text-lg">{country.flag}</span>
-                                  <span className="text-gray-700">{country.name}</span>
-                                </div>
-                              ))}
-                              {plan.countries.length > 6 && (
+                              {sampleCountries.map((countryName, idx) => {
+                                // Find the country flag from regional plans
+                                const countryInfo = regionalPlans
+                                  .find(plan => plan.continent === region)
+                                  ?.countries.find(c => c.name === countryName)
+                                
+                                return countryInfo ? (
+                                  <div key={idx} className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded text-sm">
+                                    <span className="text-lg">{countryInfo.flag}</span>
+                                    <span className="text-gray-700">{countryInfo.name}</span>
+                                  </div>
+                                ) : null
+                              })}
+                              {countryCount > 6 && (
                                 <div className="flex items-center text-sm text-gray-500">
-                                  +{plan.countries.length - 6} more
+                                  +{countryCount - 6} more
                                 </div>
                               )}
                             </div>
 
-                            {/* View All Link */}
+                            {/* View Countries Button */}
                             <button
-                              onClick={() => handleRegionalPlanShop(plan)}
-                              className="text-telgo-red text-sm font-medium hover:text-red-700 transition-colors"
+                              className="w-full py-2.5 bg-telgo-red text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors"
                             >
-                              View All →
+                              View Countries →
                             </button>
                           </div>
                         </motion.div>
-                      ))}
-                    </div>
+                      )
+                    })}
                   </div>
                 )
-              })}
-
-              {/* No Results */}
-              {filteredRegionalPlans.length === 0 && (
-                <div className="text-center py-12">
-                  <p className="text-gray-500 text-lg">No regional plans found. Try a different search.</p>
-                </div>
-              )}
+              })()}
             </div>
           )}
 
