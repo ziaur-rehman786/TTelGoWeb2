@@ -639,7 +639,7 @@ const Home = () => {
                     className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-96 overflow-y-auto"
                     style={{ zIndex: 1001 }}
                   >
-                    {heroSearchResults.map((result, index) => (
+                    {heroSearchResults.map((result) => (
                       <div
                         key={result.country.id}
                         onClick={() => handleCountryClick(result.name)}
