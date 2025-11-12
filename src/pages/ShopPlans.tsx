@@ -8,8 +8,6 @@ const ShopPlans = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [searchQuery, setSearchQuery] = useState('')
   const [esimType, setEsimType] = useState<'local' | 'regional' | 'global'>('global')
-  const [destinationType, setDestinationType] = useState<'All' | 'Top' | 'New'>('All')
-  const [selectedRegion, setSelectedRegion] = useState<string>('All')
 
   // Get tab from URL query parameter
   useEffect(() => {
@@ -18,8 +16,6 @@ const ShopPlans = () => {
       setEsimType(tab)
     }
   }, [searchParams])
-
-  const regions = ['All', 'Asia', 'Europe', 'North America', 'South America', 'Africa', 'Oceania', 'Middle East']
 
   const handleRegionClick = (regionName: string) => {
     // Navigate to country selection page for this region
@@ -121,61 +117,6 @@ const ShopPlans = () => {
             </button>
           </div>
 
-          {/* Filters for Global eSIM */}
-          {esimType === 'global' && (
-            <>
-              {/* Destination Type Tabs */}
-              <div className="flex gap-2 mb-4">
-                <button
-                  onClick={() => setDestinationType('All')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    destinationType === 'All'
-                      ? 'bg-telgo-red text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  All destinations
-                </button>
-                <button
-                  onClick={() => setDestinationType('Top')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    destinationType === 'Top'
-                      ? 'bg-telgo-red text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Top destinations
-                </button>
-                <button
-                  onClick={() => setDestinationType('New')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    destinationType === 'New'
-                      ? 'bg-telgo-red text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  New destinations
-                </button>
-              </div>
-
-              {/* Region Filters */}
-              <div className="flex flex-wrap gap-3">
-                {regions.map((region) => (
-                  <button
-                    key={region}
-                    onClick={() => setSelectedRegion(region)}
-                    className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
-                      selectedRegion === region
-                        ? 'border-telgo-red text-telgo-red'
-                        : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                    }`}
-                  >
-                    {region}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
         </div>
       </section>
 
@@ -279,44 +220,6 @@ const ShopPlans = () => {
           {/* Global eSIM View - Plan Cards */}
           {esimType === 'global' && (
             <div className="space-y-6">
-              {/* Global-EX 54 Countries Plan */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow overflow-hidden"
-              >
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-1">Global-EX</h3>
-                      <p className="text-sm text-gray-600 mb-3">Start from USD 2.17/GB</p>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">
-                          10GB - 50GB
-                        </span>
-                        <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">
-                          30DAY - 365DAY
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600">Available in 54 / 82 Countries</p>
-                    </div>
-                    <button
-                      onClick={() => navigate('/global-esim')}
-                      className="px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Shop Now
-                    </button>
-                  </div>
-                  <button
-                    onClick={() => navigate('/global-esim')}
-                    className="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors"
-                  >
-                    View All →
-                  </button>
-                </div>
-              </motion.div>
-
               {/* Global 106 Countries Plan */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
