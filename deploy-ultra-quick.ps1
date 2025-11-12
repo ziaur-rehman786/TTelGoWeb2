@@ -32,13 +32,68 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-# Create upload directory on server and upload dist folder
-Write-Host "Preparing server and uploading dist folder..." -ForegroundColor Yellow
-$prepareCommand = "mkdir -p ~/TTelGoWeb2/dist-upload && rm -rf ~/TTelGoWeb2/dist-upload/*"
-& ssh.exe -i $PemKeyPath -o StrictHostKeyChecking=no "$ServerUser@$ServerIP" $prepareCommand
+# Smart upload - only changed files
+Write-Host "Checking for changed files..." -ForegroundColor Yellow
 
-Write-Host "Uploading files..." -ForegroundColor Yellow
-& scp.exe -i $PemKeyPath -r -o StrictHostKeyChecking=no "$ProjectPath\dist\*" "${ServerUser}@${ServerIP}:~/TTelGoWeb2/dist-upload/"
+# Get list of files in dist
+$localFiles = Get-ChildItem -Path "$ProjectPath\dist" -Recurse -File | ForEach-Object {
+    $relativePath = $_.FullName.Replace("$ProjectPath\dist\", "").Replace('\', '/')
+    @{
+        Path = $relativePath
+        FullPath = $_.FullName
+        Size = $_.Length
+        LastWrite = $_.LastWriteTime
+    }
+}
+
+# Get list of files on server
+Write-Host "Comparing with server files..." -ForegroundColor Gray
+$serverCheck = "test -d ~/TTelGoWeb2/dist-upload && find ~/TTelGoWeb2/dist-upload -type f -exec stat -c '%s %n' {} \; 2>/dev/null | sed 's|~/TTelGoWeb2/dist-upload/||' || echo 'NO_DIR'"
+$serverFilesOutput = & ssh.exe -i $PemKeyPath -o StrictHostKeyChecking=no "$ServerUser@$ServerIP" $serverCheck
+
+# Parse server files
+$serverFiles = @{}
+if ($serverFilesOutput -notmatch 'NO_DIR') {
+    $serverFilesOutput | ForEach-Object {
+        if ($_ -match '^(\d+)\s+(.+)') {
+            $size = [int]$matches[1]
+            $path = $matches[2].Trim()
+            $serverFiles[$path] = $size
+        }
+    }
+} else {
+    & ssh.exe -i $PemKeyPath -o StrictHostKeyChecking=no "$ServerUser@$ServerIP" "mkdir -p ~/TTelGoWeb2/dist-upload"
+}
+
+# Find files that need uploading
+$filesToUpload = @()
+foreach ($file in $localFiles) {
+    $needsUpload = $true
+    if ($serverFiles.ContainsKey($file.Path)) {
+        if ($serverFiles[$file.Path] -eq $file.Size) {
+            $needsUpload = $false
+        }
+    }
+    if ($needsUpload) {
+        $filesToUpload += $file
+    }
+}
+
+Write-Host "Files to upload: $($filesToUpload.Count) out of $($localFiles.Count)" -ForegroundColor Green
+
+if ($filesToUpload.Count -eq 0) {
+    Write-Host "✅ No changes detected! Skipping upload." -ForegroundColor Green
+} else {
+    $totalSize = ($filesToUpload | Measure-Object -Property Size -Sum).Sum / 1MB
+    Write-Host "Uploading $($filesToUpload.Count) files (~$([math]::Round($totalSize, 2)) MB)..." -ForegroundColor Yellow
+    
+    foreach ($file in $filesToUpload) {
+        $remotePath = "~/TTelGoWeb2/dist-upload/$($file.Path.Replace('\', '/'))"
+        $remoteDir = $remotePath.Substring(0, $remotePath.LastIndexOf('/'))
+        & ssh.exe -i $PemKeyPath -o StrictHostKeyChecking=no "$ServerUser@$ServerIP" "mkdir -p `"$remoteDir`""
+        & scp.exe -i $PemKeyPath -o StrictHostKeyChecking=no "$($file.FullPath)" "${ServerUser}@${ServerIP}:$remotePath"
+    }
+}
 
 # Deploy
 $deployCommand = "sudo rm -rf /var/www/ttelgo/* && sudo cp -r ~/TTelGoWeb2/dist-upload/* /var/www/ttelgo/ && sudo chown -R www-data:www-data /var/www/ttelgo && sudo chmod -R 755 /var/www/ttelgo && sudo systemctl reload nginx && echo '✅ SUCCESS!'"
