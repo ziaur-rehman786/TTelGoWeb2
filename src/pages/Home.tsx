@@ -53,17 +53,24 @@ const Home = () => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement
       const searchContainer = target.closest('.search-container')
-      if (!searchContainer && heroSearchQuery.trim()) {
+      const searchResults = searchResultsRef.current
+      
+      // Don't close if clicking inside search container or results dropdown
+      if (!searchContainer && !(searchResults && searchResults.contains(target)) && heroSearchQuery.trim()) {
         setHeroSearchQuery('')
       }
     }
 
     if (heroSearchQuery.trim()) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
+      // Use a small delay to allow click events on dropdown items to fire first
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside)
+      }, 100)
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
+      return () => {
+        clearTimeout(timeoutId)
+        document.removeEventListener('mousedown', handleClickOutside)
+      }
     }
   }, [heroSearchQuery])
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
@@ -611,7 +618,7 @@ const Home = () => {
               </p>
               
               {/* Search Bar */}
-              <div className="relative max-w-md search-container">
+              <div className="relative max-w-md search-container" style={{ zIndex: 1000 }}>
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none z-10">
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -629,7 +636,8 @@ const Home = () => {
                 {heroSearchQuery.trim() && heroSearchResults.length > 0 && (
                   <div
                     ref={searchResultsRef}
-                    className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-96 overflow-y-auto z-50"
+                    className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-96 overflow-y-auto"
+                    style={{ zIndex: 1001 }}
                   >
                     {heroSearchResults.map((result, index) => (
                       <div
@@ -652,7 +660,7 @@ const Home = () => {
                 
                 {/* No Results Message */}
                 {heroSearchQuery.trim() && heroSearchResults.length === 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-50">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-4" style={{ zIndex: 1001 }}>
                     <p className="text-gray-500 text-center">No countries found. Try a different search.</p>
                   </div>
                 )}
