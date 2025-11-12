@@ -29,10 +29,12 @@ const Home = () => {
   const [testimonialIndex, setTestimonialIndex] = useState(0)
   const [email, setEmail] = useState('')
   const [openFAQ, setOpenFAQ] = useState<string | null>(null)
+  const [heroSearchQuery, setHeroSearchQuery] = useState('')
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const regionalScrollRef = useRef<HTMLDivElement>(null)
   const journeyScrollRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
+  const searchResultsRef = useRef<HTMLDivElement>(null)
 
   // Handle scrolling to popular destinations section when navigating from other pages
   useEffect(() => {
@@ -45,6 +47,25 @@ const Home = () => {
       }, 100)
     }
   }, [location.hash])
+
+  // Close search dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      const searchContainer = target.closest('.search-container')
+      if (!searchContainer && heroSearchQuery.trim()) {
+        setHeroSearchQuery('')
+      }
+    }
+
+    if (heroSearchQuery.trim()) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [heroSearchQuery])
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
 
   // Journey destinations - Popular travel destinations
@@ -74,6 +95,23 @@ const Home = () => {
         country: country, // Keep full country object for navigation
       }))
   }, [])
+
+  // Filter countries for hero search
+  const heroSearchResults = useMemo(() => {
+    if (!heroSearchQuery.trim()) {
+      return []
+    }
+    const query = heroSearchQuery.toLowerCase()
+    return localDestinations
+      .filter(dest => dest.name.toLowerCase().includes(query))
+      .slice(0, 8) // Limit to 8 results
+  }, [heroSearchQuery, localDestinations])
+
+  // Handle country click from search
+  const handleCountryClick = (countryName: string) => {
+    navigate(`/country/${encodeURIComponent(countryName)}`)
+    setHeroSearchQuery('') // Clear search after navigation
+  }
 
   // All 200+ countries for Global eSIMs - Generated once with fixed prices
   const allCountries = useMemo(() => {
@@ -573,7 +611,7 @@ const Home = () => {
               </p>
               
               {/* Search Bar */}
-              <div className="relative max-w-md">
+              <div className="relative max-w-md search-container">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none z-10">
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -581,9 +619,43 @@ const Home = () => {
                 </div>
                 <input
                   type="text"
+                  value={heroSearchQuery}
+                  onChange={(e) => setHeroSearchQuery(e.target.value)}
                   placeholder="Search for your next destination"
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-telgo-red focus:border-transparent text-gray-900 bg-white/95 backdrop-blur-sm relative z-0"
                 />
+                
+                {/* Search Results Dropdown */}
+                {heroSearchQuery.trim() && heroSearchResults.length > 0 && (
+                  <div
+                    ref={searchResultsRef}
+                    className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-96 overflow-y-auto z-50"
+                  >
+                    {heroSearchResults.map((result, index) => (
+                      <div
+                        key={result.country.id}
+                        onClick={() => handleCountryClick(result.name)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
+                      >
+                        <div className="text-2xl">{result.flag}</div>
+                        <div className="flex-1">
+                          <div className="text-gray-900 font-medium">{result.name}</div>
+                          <div className="text-sm text-gray-500">From ${result.price}/GB</div>
+                        </div>
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* No Results Message */}
+                {heroSearchQuery.trim() && heroSearchResults.length === 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-50">
+                    <p className="text-gray-500 text-center">No countries found. Try a different search.</p>
+                  </div>
+                )}
               </div>
             </motion.div>
 
