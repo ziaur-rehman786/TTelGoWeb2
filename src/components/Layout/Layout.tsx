@@ -26,14 +26,10 @@ const Layout = () => {
   
   return (
     <div 
-      className="min-h-screen flex flex-col"
-      style={{
-        background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 50%, #fce7e7 100%)',
-        backgroundAttachment: 'fixed'
-      }}
+      className="min-h-screen flex flex-col bg-white"
     >
-      <Navbar />
       <main className="flex-grow">
+        <Navbar />
         <Outlet />
       </main>
       {!hideFooter && <Footer />}

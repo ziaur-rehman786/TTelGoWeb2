@@ -25,21 +25,9 @@ const Logo = () => {
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
   const location = useLocation()
 
   const isActive = (path: string) => location.pathname === path
-
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY
-      setIsScrolled(scrollPosition > 50)
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
 
   const navLinks = [
     { path: '/', label: 'Home' },
@@ -52,11 +40,12 @@ const Navbar = () => {
 
   return (
     <nav 
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white/40 backdrop-blur-sm shadow-sm' 
-          : 'bg-white shadow-md'
-      }`}
+      className="relative z-50 bg-white transition-all duration-300"
+      style={{
+        boxShadow: 'none',
+        borderBottom: 'none',
+        backgroundColor: '#ffffff'
+      }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
@@ -129,7 +118,11 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t border-gray-200"
+            className="md:hidden bg-white"
+            style={{
+              boxShadow: 'none',
+              borderTop: 'none'
+            }}
           >
             <div className="px-4 pt-2 pb-4 space-y-2">
               {navLinks.map((link) => (
@@ -146,7 +139,7 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-              <div className="pt-4 border-t border-gray-200">
+              <div className="pt-4">
                 <Link
                   to="/shop"
                   onClick={() => setIsOpen(false)}

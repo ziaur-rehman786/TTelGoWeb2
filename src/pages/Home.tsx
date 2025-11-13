@@ -1,5 +1,4 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
-import { createPortal } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { allCountries as countriesData } from '@/utils/countriesData'
@@ -48,7 +47,6 @@ const Home = () => {
   const location = useLocation()
   const searchResultsRef = useRef<HTMLDivElement>(null)
   const heroSearchInputRef = useRef<HTMLInputElement>(null)
-  const [heroDropdownPosition, setHeroDropdownPosition] = useState({ top: 0, left: 0, width: 0 })
 
   // Handle scrolling to popular destinations section when navigating from other pages
   useEffect(() => {
@@ -61,32 +59,6 @@ const Home = () => {
       }, 100)
     }
   }, [location.hash])
-
-  // Update dropdown position when search query changes or window scrolls/resizes
-  const updateHeroDropdownPosition = useCallback(() => {
-    if (heroSearchQuery.trim() && heroSearchInputRef.current) {
-      const inputRect = heroSearchInputRef.current.getBoundingClientRect()
-      setHeroDropdownPosition({
-        top: inputRect.bottom + window.scrollY + 8, // 8px for mt-2
-        left: inputRect.left + window.scrollX,
-        width: inputRect.width
-      })
-    }
-  }, [heroSearchQuery])
-
-  useEffect(() => {
-    updateHeroDropdownPosition()
-    
-    if (heroSearchQuery.trim()) {
-      window.addEventListener('scroll', updateHeroDropdownPosition, true)
-      window.addEventListener('resize', updateHeroDropdownPosition)
-      
-      return () => {
-        window.removeEventListener('scroll', updateHeroDropdownPosition, true)
-        window.removeEventListener('resize', updateHeroDropdownPosition)
-      }
-    }
-  }, [heroSearchQuery, updateHeroDropdownPosition])
 
   // Close search dropdown when clicking outside
   useEffect(() => {
@@ -686,59 +658,43 @@ const Home = () => {
                   placeholder="Search for your next destination"
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-telgo-red focus:border-transparent text-gray-900 bg-white/95 backdrop-blur-sm relative z-0"
                 />
-              </div>
-            
-            {/* Search Results Dropdown - Rendered via Portal */}
-            {heroSearchQuery.trim() && heroSearchResults.length > 0 && typeof window !== 'undefined' && createPortal(
-              <div
-                ref={searchResultsRef}
-                className="fixed bg-white border border-gray-200 rounded-lg shadow-2xl max-h-96 overflow-y-auto"
-                style={{ 
-                  zIndex: 10000,
-                  top: `${heroDropdownPosition.top}px`,
-                  left: `${heroDropdownPosition.left}px`,
-                  width: `${heroDropdownPosition.width}px`
-                }}
-              >
-                {heroSearchResults.map((result) => (
+                
+                {/* Search Results Dropdown - Positioned absolutely relative to search container */}
+                {heroSearchQuery.trim() && heroSearchResults.length > 0 && (
                   <div
-                    key={result.country.id}
-                    onClick={() => handleCountryClick(result.name)}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
+                    ref={searchResultsRef}
+                    className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50"
                   >
-                    <div className="text-2xl">{result.flag}</div>
-                    <div className="flex-1">
-                      <div className="text-gray-900 font-medium">{result.name}</div>
-                      {result.status === 'Coming Soon' || result.price === 'N/A' || result.price === '0.00' ? (
-                        <div className="text-sm text-orange-600 font-medium">Coming Soon</div>
-                      ) : (
-                        <div className="text-sm text-gray-500">From ${result.price}/GB</div>
-                      )}
-                    </div>
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                    {heroSearchResults.map((result) => (
+                      <div
+                        key={result.country.id}
+                        onClick={() => handleCountryClick(result.name)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
+                      >
+                        <div className="text-2xl">{result.flag}</div>
+                        <div className="flex-1">
+                          <div className="text-gray-900 font-medium">{result.name}</div>
+                          {result.status === 'Coming Soon' || result.price === 'N/A' || result.price === '0.00' ? (
+                            <div className="text-sm text-orange-600 font-medium">Coming Soon</div>
+                          ) : (
+                            <div className="text-sm text-gray-500">From ${result.price}/GB</div>
+                          )}
+                        </div>
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>,
-              document.body
-            )}
-            
-            {/* No Results Message - Rendered via Portal */}
-            {heroSearchQuery.trim() && heroSearchResults.length === 0 && typeof window !== 'undefined' && createPortal(
-              <div 
-                className="fixed bg-white border border-gray-200 rounded-lg shadow-2xl p-4"
-                style={{ 
-                  zIndex: 10000,
-                  top: `${heroDropdownPosition.top}px`,
-                  left: `${heroDropdownPosition.left}px`,
-                  width: `${heroDropdownPosition.width}px`
-                }}
-              >
-                <p className="text-gray-500 text-center">No countries found. Try a different search.</p>
-              </div>,
-              document.body
-            )}
+                )}
+                
+                {/* No Results Message - Positioned absolutely relative to search container */}
+                {heroSearchQuery.trim() && heroSearchResults.length === 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-2xl p-4 z-50">
+                    <p className="text-gray-500 text-center">No countries found. Try a different search.</p>
+                  </div>
+                )}
+              </div>
             </motion.div>
 
             {/* Right Hero Image */}
@@ -746,10 +702,10 @@ const Home = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="hidden lg:flex relative w-full items-center justify-end pr-8 lg:pr-16 xl:pr-24"
+              className="hidden lg:flex relative w-full items-center justify-end pr-0 lg:pr-0 xl:pr-0"
               style={{ zIndex: 15 }}
             >
-              <div className="relative w-full flex items-center justify-end">
+              <div className="relative w-full flex items-center justify-end translate-x-12 lg:translate-x-20 xl:translate-x-32">
                 <img
                   src="/IMAGES/Hero Right.png"
                   alt="Hero Right"
@@ -908,20 +864,24 @@ const Home = () => {
                     {localDestinations.length} countries available
                   </p>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 max-h-[600px] overflow-y-auto pr-2">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[600px] overflow-y-auto pr-2">
                   {localDestinations.map((dest, index) => (
                     <motion.div
                       key={dest.country.id}
                       initial={{ opacity: 0, scale: 0.9 }}
                       whileInView={{ opacity: 1, scale: 1 }}
+                      whileHover={{ scale: 1.1, y: -8, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
                       viewport={{ once: true }}
-                      transition={{ duration: 0.3, delay: Math.min(index * 0.02, 0.5) }}
+                      transition={{ 
+                        default: { duration: 0.3, delay: Math.min(index * 0.02, 0.5) },
+                        hover: { duration: 0.08, ease: "easeOut" }
+                      }}
                       onClick={() => navigate(`/country/${encodeURIComponent(dest.name)}`)}
-                      className="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+                      className="bg-white rounded-xl shadow-md p-6 text-center cursor-pointer"
                     >
-                      <div className="text-4xl mb-2">{dest.flag}</div>
-                      <div className="text-gray-900 font-semibold mb-1 text-sm">{dest.name}</div>
-                      <div className="text-telgo-red text-xs font-medium">
+                      <div className="text-4xl mb-3">{dest.flag}</div>
+                      <div className="text-gray-900 font-semibold mb-2">{dest.name}</div>
+                      <div className="text-telgo-red text-sm font-medium">
                         From ${dest.price}/GB
                       </div>
                     </motion.div>
@@ -946,16 +906,18 @@ const Home = () => {
                         oceania: 'Oceania',
                       }
                       return (
-                        <button
+                        <motion.button
                           key={region}
                           onClick={() => setSelectedRegion(region)}
-                          className="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-xl transition-shadow cursor-pointer"
+                          whileHover={{ scale: 1.05, y: -5, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+                          transition={{ duration: 0.1 }}
+                          className="bg-white rounded-xl shadow-md p-6 text-center cursor-pointer"
                         >
                           <div className="text-gray-900 font-semibold text-lg">{regionNames[region] || region}</div>
                           <div className="text-gray-600 text-sm mt-2">
                             {regionalESIMs[region as keyof typeof regionalESIMs].length} countries
                           </div>
-                        </button>
+                        </motion.button>
                       )
                     })}
                   </div>
@@ -986,18 +948,20 @@ const Home = () => {
                         className="flex gap-4 overflow-x-auto pb-4 scroll-smooth scrollbar-hide"
                       >
                         {regionalESIMs[selectedRegion as keyof typeof regionalESIMs].map((dest, index) => (
-                          <div
+                          <motion.div
                             key={index}
-                            className="flex-shrink-0 bg-white rounded-xl shadow-md p-6 text-center hover:shadow-xl transition-shadow cursor-pointer min-w-[200px]"
+                            whileHover={{ scale: 1.1, y: -8, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+                            transition={{ duration: 0.1 }}
+                            className="flex-shrink-0 bg-white rounded-xl shadow-md p-6 text-center cursor-pointer min-w-[200px]"
                           >
                             <div className="text-4xl mb-3">{dest.flag}</div>
                             <div className="text-gray-900 font-semibold mb-2">{dest.name}</div>
-                            <div className="text-telgo-red text-sm font-medium">
-                              Starting from USD {dest.price}/GB
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                        <div className="text-telgo-red text-sm font-medium">
+                          Starting from USD {dest.price}/GB
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
                       <button
                         onClick={() => handleScroll('left', regionalScrollRef)}
                         className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors z-10"
@@ -1035,17 +999,19 @@ const Home = () => {
                     className="flex gap-4 overflow-x-auto pb-4 scroll-smooth scrollbar-hide"
                   >
                     {allCountries.map((dest, index) => (
-                      <div
+                      <motion.div
                         key={index}
                         onClick={() => navigate('/global-esim')}
-                        className="flex-shrink-0 bg-white rounded-xl shadow-md p-6 text-center hover:shadow-xl transition-shadow cursor-pointer min-w-[200px]"
+                        whileHover={{ scale: 1.1, y: -8, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+                        transition={{ duration: 0.1 }}
+                        className="flex-shrink-0 bg-white rounded-xl shadow-md p-6 text-center cursor-pointer min-w-[200px]"
                       >
                         <div className="text-4xl mb-3">{dest.flag}</div>
                         <div className="text-gray-900 font-semibold mb-2 text-sm">{dest.name}</div>
                         <div className="text-telgo-red text-sm font-medium">
                           Starting from USD {dest.price}/GB
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                   <button

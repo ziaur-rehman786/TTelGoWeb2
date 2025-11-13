@@ -57,9 +57,9 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a href="mailto:support@telgo.com" className="text-gray-600 hover:text-telgo-red transition-colors text-sm">
+                <Link to="/contact" className="text-gray-600 hover:text-telgo-red transition-colors text-sm">
                   Contact Us
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

@@ -12,6 +12,7 @@ import Checkout from './pages/Checkout'
 import RegionCountries from './pages/RegionCountries'
 import CountryPackages from './pages/CountryPackages'
 import GlobalESIMPlans from './pages/GlobalESIMPlans'
+import Contact from './pages/Contact'
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/download" element={<DownloadApp />} />
           <Route path="/help" element={<HelpCentre />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/my-esim" element={<MyeSIM />} />
           <Route path="/shop" element={<ShopPlans />} />
           <Route path="/region/:regionName" element={<RegionCountries />} />

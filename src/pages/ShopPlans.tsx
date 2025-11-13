@@ -251,7 +251,7 @@ const ShopPlans = () => {
       </section>
 
       {/* eSIM Type Tabs */}
-      <section className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+      <section className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex gap-3 mb-6">
             <button
@@ -347,9 +347,13 @@ const ShopPlans = () => {
                           key={region}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.3, delay: index * 0.1 }}
+                          whileHover={{ scale: 1.05, y: -5, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+                          transition={{ 
+                            default: { duration: 0.3, delay: index * 0.1 },
+                            hover: { duration: 0.08, ease: "easeOut" }
+                          }}
                           onClick={() => handleRegionClick(region)}
-                          className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-all cursor-pointer overflow-hidden"
+                          className="bg-white rounded-lg border border-gray-200 cursor-pointer overflow-hidden"
                         >
                           <div className="p-6">
                             {/* Header */}
@@ -405,8 +409,9 @@ const ShopPlans = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow overflow-hidden"
+                whileHover={{ scale: 1.05, y: -5, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+                transition={{ duration: 0.1 }}
+                className="bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer"
               >
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
@@ -443,8 +448,9 @@ const ShopPlans = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
-                className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow overflow-hidden"
+                whileHover={{ scale: 1.05, y: -5, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+                transition={{ duration: 0.1 }}
+                className="bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer"
               >
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
@@ -495,19 +501,23 @@ const ShopPlans = () => {
                   <p className="text-gray-500 text-lg">No countries found. Try a different search.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 max-h-[600px] overflow-y-auto pr-2">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[600px] overflow-y-auto pr-2">
                   {filteredLocalDestinations.map((dest, index) => (
                     <motion.div
                       key={dest.country.id}
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.3, delay: Math.min(index * 0.02, 0.5) }}
+                      whileHover={{ scale: 1.1, y: -8, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+                      transition={{ 
+                        default: { duration: 0.3, delay: Math.min(index * 0.02, 0.5) },
+                        hover: { duration: 0.08, ease: "easeOut" }
+                      }}
                       onClick={() => navigate(`/country/${encodeURIComponent(dest.name)}`)}
-                      className="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+                      className="bg-white rounded-xl shadow-md p-6 text-center cursor-pointer"
                     >
-                      <div className="text-4xl mb-2">{dest.flag}</div>
-                      <div className="text-gray-900 font-semibold mb-1 text-sm">{dest.name}</div>
-                      <div className="text-telgo-red text-xs font-medium">
+                      <div className="text-4xl mb-3">{dest.flag}</div>
+                      <div className="text-gray-900 font-semibold mb-2">{dest.name}</div>
+                      <div className="text-telgo-red text-sm font-medium">
                         From ${dest.price}/GB
                       </div>
                     </motion.div>
