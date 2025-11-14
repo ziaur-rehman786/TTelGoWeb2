@@ -21,9 +21,6 @@ const Layout = () => {
     }
   }, [location.pathname, location.hash])
   
-  // Hide footer on login and signup pages
-  const hideFooter = location.pathname === '/login' || location.pathname === '/signup'
-  
   return (
     <div 
       className="min-h-screen flex flex-col bg-white"
@@ -32,7 +29,7 @@ const Layout = () => {
         <Navbar />
         <Outlet />
       </main>
-      {!hideFooter && <Footer />}
+      <Footer />
     </div>
   )
 }

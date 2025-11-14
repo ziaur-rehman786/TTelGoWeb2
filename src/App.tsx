@@ -13,6 +13,10 @@ import RegionCountries from './pages/RegionCountries'
 import CountryPackages from './pages/CountryPackages'
 import GlobalESIMPlans from './pages/GlobalESIMPlans'
 import Contact from './pages/Contact'
+import Blog from './pages/Blog'
+import UltimateGuideESIMTravel from './pages/blog/UltimateGuideESIMTravel'
+import SaveMoneyESIMvsRoaming from './pages/blog/SaveMoneyESIMvsRoaming'
+import ESIMSetupGuideBeginners from './pages/blog/ESIMSetupGuideBeginners'
 
 function App() {
   return (
@@ -25,6 +29,10 @@ function App() {
           <Route path="/download" element={<DownloadApp />} />
           <Route path="/help" element={<HelpCentre />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/ultimate-guide-esim-travel-2024" element={<UltimateGuideESIMTravel />} />
+          <Route path="/blog/save-money-esim-vs-roaming" element={<SaveMoneyESIMvsRoaming />} />
+          <Route path="/blog/esim-setup-guide-beginners" element={<ESIMSetupGuideBeginners />} />
           <Route path="/my-esim" element={<MyeSIM />} />
           <Route path="/shop" element={<ShopPlans />} />
           <Route path="/region/:regionName" element={<RegionCountries />} />

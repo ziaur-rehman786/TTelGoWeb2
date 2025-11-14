@@ -79,6 +79,11 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/blog" className="text-gray-600 hover:text-telgo-red transition-colors text-sm">
+                  Blog
+                </Link>
+              </li>
+              <li>
                 <a href="#" className="text-gray-600 hover:text-telgo-red transition-colors text-sm">
                   Media Center
                 </a>

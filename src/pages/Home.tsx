@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
+import { useState, useRef, useMemo, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { allCountries as countriesData } from '@/utils/countriesData'
@@ -41,12 +41,15 @@ const Home = () => {
   const [email, setEmail] = useState('')
   const [openFAQ, setOpenFAQ] = useState<string | null>(null)
   const [heroSearchQuery, setHeroSearchQuery] = useState('')
+  const [destinationsSearchQuery, setDestinationsSearchQuery] = useState('')
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const regionalScrollRef = useRef<HTMLDivElement>(null)
   const journeyScrollRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
   const searchResultsRef = useRef<HTMLDivElement>(null)
   const heroSearchInputRef = useRef<HTMLInputElement>(null)
+  const destinationsSearchResultsRef = useRef<HTMLDivElement>(null)
+  const destinationsSearchInputRef = useRef<HTMLInputElement>(null)
 
   // Handle scrolling to popular destinations section when navigating from other pages
   useEffect(() => {
@@ -60,11 +63,11 @@ const Home = () => {
     }
   }, [location.hash])
 
-  // Close search dropdown when clicking outside
+  // Close search dropdown when clicking outside (hero search)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement
-      const searchContainer = target.closest('.search-container')
+      const searchContainer = target.closest('.hero-search-container')
       const searchResults = searchResultsRef.current
       
       // Don't close if clicking inside search container or results dropdown
@@ -85,6 +88,32 @@ const Home = () => {
       }
     }
   }, [heroSearchQuery])
+
+  // Close search dropdown when clicking outside (destinations search)
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      const searchContainer = target.closest('.destinations-search-container')
+      const searchResults = destinationsSearchResultsRef.current
+      
+      // Don't close if clicking inside search container or results dropdown
+      if (!searchContainer && !(searchResults && searchResults.contains(target)) && destinationsSearchQuery.trim()) {
+        setDestinationsSearchQuery('')
+      }
+    }
+
+    if (destinationsSearchQuery.trim()) {
+      // Use a small delay to allow click events on dropdown items to fire first
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside)
+      }, 100)
+
+      return () => {
+        clearTimeout(timeoutId)
+        document.removeEventListener('mousedown', handleClickOutside)
+      }
+    }
+  }, [destinationsSearchQuery])
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
 
   // Journey destinations - Popular travel destinations
@@ -140,10 +169,30 @@ const Home = () => {
       .slice(0, 10) // Show up to 10 results in dropdown
   }, [heroSearchQuery, allCountriesForSearch])
 
+  // Filter countries for destinations search (includes all countries)
+  const destinationsSearchResults = useMemo(() => {
+    if (!destinationsSearchQuery.trim()) {
+      return []
+    }
+    const query = destinationsSearchQuery.toLowerCase()
+    return allCountriesForSearch
+      .filter(dest => 
+        dest.name.toLowerCase().includes(query) ||
+        dest.country.region?.toLowerCase().includes(query)
+      )
+      .slice(0, 10) // Show up to 10 results in dropdown
+  }, [destinationsSearchQuery, allCountriesForSearch])
+
   // Handle country click from search
   const handleCountryClick = (countryName: string) => {
     navigate(`/country/${encodeURIComponent(countryName)}`)
     setHeroSearchQuery('') // Clear search after navigation
+  }
+
+  // Handle country click from destinations search
+  const handleDestinationsCountryClick = (countryName: string) => {
+    navigate(`/country/${encodeURIComponent(countryName)}`)
+    setDestinationsSearchQuery('') // Clear search after navigation
   }
 
   // All 200+ countries for Global eSIMs - Generated once with fixed prices
@@ -644,7 +693,7 @@ const Home = () => {
               </p>
               
               {/* Search Bar */}
-              <div className="relative max-w-md search-container" style={{ zIndex: 9999 }}>
+              <div className="relative max-w-md hero-search-container" style={{ zIndex: 9999 }}>
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none z-10">
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -814,9 +863,65 @@ const Home = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 text-center">
               Popular Destinations
             </h2>
+            <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto text-center">
+              Explore our wide range of eSIM options for destinations around the world. Choose from local, regional, or global plans to stay connected wherever your journey takes you.
+            </p>
+            
+            {/* Search Bar */}
+            <div className="relative max-w-2xl mx-auto mb-8 destinations-search-container" style={{ zIndex: 100 }}>
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none z-10">
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input
+                ref={destinationsSearchInputRef}
+                type="text"
+                value={destinationsSearchQuery}
+                onChange={(e) => setDestinationsSearchQuery(e.target.value)}
+                placeholder="Search for a country or destination..."
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-telgo-red focus:border-transparent text-gray-900 bg-white shadow-sm"
+              />
+              
+              {/* Search Results Dropdown */}
+              {destinationsSearchQuery.trim() && destinationsSearchResults.length > 0 && (
+                <div
+                  ref={destinationsSearchResultsRef}
+                  className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50"
+                >
+                  {destinationsSearchResults.map((result) => (
+                    <div
+                      key={result.country.id}
+                      onClick={() => handleDestinationsCountryClick(result.name)}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
+                    >
+                      <div className="text-2xl">{result.flag}</div>
+                      <div className="flex-1">
+                        <div className="text-gray-900 font-medium">{result.name}</div>
+                        {result.status === 'Coming Soon' || result.price === 'N/A' || result.price === '0.00' ? (
+                          <div className="text-sm text-orange-600 font-medium">Coming Soon</div>
+                        ) : (
+                          <div className="text-sm text-gray-500">From ${result.price}/GB</div>
+                        )}
+                      </div>
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* No Results Message */}
+              {destinationsSearchQuery.trim() && destinationsSearchResults.length === 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-2xl p-4 z-50">
+                  <p className="text-gray-500 text-center">No countries found. Try a different search.</p>
+                </div>
+              )}
+            </div>
             
             {/* Tabs */}
             <div className="flex gap-4 mb-8 justify-center">
@@ -1126,7 +1231,7 @@ const Home = () => {
               </div>
             </motion.div>
 
-            {/* Right - MockUp Image */}
+            {/* Right - 3D Mobile Image */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -1135,8 +1240,8 @@ const Home = () => {
               className="hidden lg:flex relative w-full items-center justify-center"
             >
               <img
-                src="/IMAGES/MockUp.png"
-                alt="TTelGo eSIM MockUp"
+                src="/IMAGES/3DMobile.png"
+                alt="TTelGo eSIM 3D Mobile"
                 className="w-full h-auto object-contain"
                 style={{ 
                   maxHeight: '700px',
@@ -1150,7 +1255,7 @@ const Home = () => {
                 }}
                 loading="eager"
                 onError={() => {
-                  console.warn('MockUp image not found at /IMAGES/MockUp.png')
+                  console.warn('3DMobile image not found at /IMAGES/3DMobile.png')
                 }}
               />
             </motion.div>

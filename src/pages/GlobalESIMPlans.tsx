@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
 // Country lists for each plan
@@ -106,11 +106,24 @@ const planConfigs = {
 
 const GlobalESIMPlans = () => {
   const navigate = useNavigate()
-  const [selectedPlanType, setSelectedPlanType] = useState<54 | 82 | 106 | 112>(54)
-  const [selectedPlan, setSelectedPlan] = useState<number>(0)
+  const [searchParams] = useSearchParams()
+  const planType = searchParams.get('type') || 'global' // 'global' or 'global-ex'
   
-  // Determine which plan group we're in (Global or Global-EX)
-  const isGlobalEX = selectedPlanType === 106 || selectedPlanType === 112
+  // For Global: allow 54 or 82, for Global-EX: only 106/112 (default to 106)
+  const [selectedPlanType, setSelectedPlanType] = useState<54 | 82 | 106 | 112>(
+    planType === 'global-ex' ? 106 : 54
+  )
+  const [selectedPlan, setSelectedPlan] = useState<number>(0)
+
+  // Update selectedPlanType when planType changes
+  useEffect(() => {
+    if (planType === 'global-ex') {
+      setSelectedPlanType(106)
+    } else {
+      setSelectedPlanType(54)
+    }
+    setSelectedPlan(0)
+  }, [planType])
 
   const currentConfig = planConfigs[selectedPlanType]
   const selectedPlanData = currentConfig.plans[selectedPlan]
@@ -223,22 +236,6 @@ const GlobalESIMPlans = () => {
                 }}
               />
             </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="rounded-lg overflow-hidden shadow-md"
-            >
-              <img
-                src="/IMAGES/Cities/NewYork.jpg"
-                alt="New York, USA"
-                className="w-full h-64 object-cover rounded-lg hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.src = '/IMAGES/Cities/London.jpg'
-                }}
-              />
-            </motion.div>
           </div>
 
           {/* Main Content */}
@@ -251,43 +248,20 @@ const GlobalESIMPlans = () => {
               className="mb-6"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                  <div className="w-6 h-6 rounded-full bg-purple-600"></div>
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-full bg-telgo-red"></div>
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900">{currentConfig.name}</h1>
                   <p className="text-gray-600">Travel eSIM</p>
                 </div>
               </div>
-              {/* Plan Group Selector */}
+              {/* Plan Group Badge */}
               <div className="mb-4">
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      setSelectedPlanType(54)
-                      setSelectedPlan(0)
-                    }}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      !isGlobalEX
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    Global (54/82 Countries)
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedPlanType(106)
-                      setSelectedPlan(0)
-                    }}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      isGlobalEX
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    Global-EX (106/112 Countries)
-                  </button>
+                <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-red-50 border border-red-200">
+                  <span className="text-sm font-medium text-telgo-red">
+                    {planType === 'global-ex' ? '106/112 Countries' : '54/82 Countries'}
+                  </span>
                 </div>
               </div>
             </motion.div>
@@ -300,13 +274,13 @@ const GlobalESIMPlans = () => {
               className="mb-6"
             >
               <div className="flex gap-2 border-b border-gray-200">
-                {!isGlobalEX ? (
+                {planType === 'global' ? (
                   <>
                     <button
                       onClick={() => setSelectedPlanType(54)}
                       className={`px-4 py-2 font-medium transition-colors border-b-2 ${
                         selectedPlanType === 54
-                          ? 'border-blue-600 text-blue-600'
+                          ? 'border-telgo-red text-telgo-red'
                           : 'border-transparent text-gray-600 hover:text-gray-900'
                       }`}
                     >
@@ -316,20 +290,20 @@ const GlobalESIMPlans = () => {
                       onClick={() => setSelectedPlanType(82)}
                       className={`px-4 py-2 font-medium transition-colors border-b-2 ${
                         selectedPlanType === 82
-                          ? 'border-blue-600 text-blue-600'
+                          ? 'border-telgo-red text-telgo-red'
                           : 'border-transparent text-gray-600 hover:text-gray-900'
                       }`}
                     >
                       82 Countries Plan
                     </button>
                   </>
-                ) : (
+                ) : planType === 'global-ex' ? (
                   <>
                     <button
                       onClick={() => setSelectedPlanType(106)}
                       className={`px-4 py-2 font-medium transition-colors border-b-2 ${
                         selectedPlanType === 106
-                          ? 'border-blue-600 text-blue-600'
+                          ? 'border-telgo-red text-telgo-red'
                           : 'border-transparent text-gray-600 hover:text-gray-900'
                       }`}
                     >
@@ -339,14 +313,14 @@ const GlobalESIMPlans = () => {
                       onClick={() => setSelectedPlanType(112)}
                       className={`px-4 py-2 font-medium transition-colors border-b-2 ${
                         selectedPlanType === 112
-                          ? 'border-blue-600 text-blue-600'
+                          ? 'border-telgo-red text-telgo-red'
                           : 'border-transparent text-gray-600 hover:text-gray-900'
                       }`}
                     >
                       112 Countries Plan
                     </button>
                   </>
-                )}
+                ) : null}
               </div>
             </motion.div>
 
@@ -377,14 +351,14 @@ const GlobalESIMPlans = () => {
                     onClick={() => setSelectedPlan(index)}
                     className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-all ${
                       selectedPlan === index
-                        ? 'border-blue-600 bg-blue-50'
+                        ? 'border-telgo-red bg-red-50'
                         : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                     }`}
                   >
                     <div className="flex items-center gap-4 flex-1">
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                         selectedPlan === index
-                          ? 'border-blue-600 bg-blue-600'
+                          ? 'border-telgo-red bg-telgo-red'
                           : 'border-gray-300'
                       }`}>
                         {selectedPlan === index && (
@@ -415,7 +389,7 @@ const GlobalESIMPlans = () => {
             >
               <button
                 onClick={handleCheckout}
-                className="w-full py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors text-lg"
+                className="w-full py-4 bg-telgo-red text-white rounded-lg font-semibold hover:bg-red-700 transition-colors text-lg"
               >
                 Proceed to Checkout - USD {selectedPlanData.price}
               </button>

@@ -253,7 +253,7 @@ const ShopPlans = () => {
       {/* eSIM Type Tabs */}
       <section className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex gap-3 mb-6">
+          <div className="flex gap-3 mb-6 justify-center">
             <button
               onClick={() => handleEsimTypeChange('local')}
               className={`px-6 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 ${
@@ -429,15 +429,15 @@ const ShopPlans = () => {
                       <p className="text-sm text-gray-600">Available in 54 / 82 Countries</p>
                     </div>
                     <button
-                      onClick={() => navigate('/global-esim')}
-                      className="px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                      onClick={() => navigate('/global-esim?type=global')}
+                      className="px-6 py-2 bg-telgo-red text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors"
                     >
                       Shop Now
                     </button>
                   </div>
                   <button
-                    onClick={() => navigate('/global-esim')}
-                    className="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors"
+                    onClick={() => navigate('/global-esim?type=global')}
+                    className="text-telgo-red text-sm font-medium hover:text-red-700 transition-colors"
                   >
                     View All →
                   </button>
@@ -468,15 +468,15 @@ const ShopPlans = () => {
                       <p className="text-sm text-gray-600">Available in 106 / 112 Countries</p>
                     </div>
                     <button
-                      onClick={() => navigate('/global-esim')}
-                      className="px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                      onClick={() => navigate('/global-esim?type=global-ex')}
+                      className="px-6 py-2 bg-telgo-red text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors"
                     >
                       Shop Now
                     </button>
                   </div>
                   <button
-                    onClick={() => navigate('/global-esim')}
-                    className="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors"
+                    onClick={() => navigate('/global-esim?type=global-ex')}
+                    className="text-telgo-red text-sm font-medium hover:text-red-700 transition-colors"
                   >
                     View All →
                   </button>

@@ -136,17 +136,17 @@ const HelpCentre = () => {
               </div>
             </motion.div>
 
-            {/* Right - HelpCentre Image */}
+            {/* Right - 3D Mobile Image */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="hidden lg:flex relative w-full items-center justify-end pr-8 lg:pr-16 xl:pr-24"
-              style={{ zIndex: 15 }}
+              className="hidden lg:flex relative w-full items-center justify-end"
+              style={{ zIndex: 15, transform: 'translateX(2rem)' }}
             >
               <img
-                src="/IMAGES/HelpCentre.jpg"
-                alt="Help Centre"
+                src="/IMAGES/3DMobile.png"
+                alt="TTelGo eSIM 3D Mobile"
                 className="w-full max-w-lg h-auto object-contain"
                 loading="lazy"
               />
